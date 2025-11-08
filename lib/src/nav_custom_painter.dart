@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:universal_io/io.dart';
 
-const s = 0.2;
+const s = 0.24;
 
 class NavCustomPainter extends CustomPainter {
   late double loc;
@@ -31,30 +31,41 @@ class NavCustomPainter extends CustomPainter {
       ..color = color
       ..style = PaintingStyle.fill;
 
+    final radius = Radius.circular(200); // <-- border radius you want
+
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final rrect = RRect.fromRectAndRadius(rect, radius);
+    final padding = size.width * .15;
+    final width = size.width - (padding * 2);
     final path = Path()
       ..moveTo(0, 0)
-      ..lineTo(size.width * (loc - 0.05), 0)
+      ..lineTo(width * (loc - 0.05) + padding, 0)
       ..cubicTo(
-        size.width * (loc + s * 0.2), // topX
+        width * (loc + s * 0.2) + padding, // topX
         size.height * 0.05, // topY
-        size.width * loc, // bottomX
+        width * loc + padding, // bottomX
         size.height * bottom, // bottomY
-        size.width * (loc + s * 0.5), // centerX
+        width * (loc + s * 0.5) + padding, // centerX
         size.height * bottom, // centerY
       )
       ..cubicTo(
-        size.width * (loc + s), // bottomX
+        width * (loc + s) + padding, // bottomX
         size.height * bottom, // bottomY
-        size.width * (loc + s * 0.8), // topX
+        width * (loc + s * 0.8) + padding, // topX
         size.height * 0.05, // topY
-        size.width * (loc + s + 0.05),
+        width * (loc + s + 0.05) + padding,
         0,
       )
       ..lineTo(size.width, 0)
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
       ..close();
-    canvas.drawPath(path, paint);
+    final finalPath = Path.combine(
+      PathOperation.intersect,
+      Path()..addRRect(rrect),
+      path,
+    );
+    canvas.drawPath(finalPath, paint);
   }
 
   @override

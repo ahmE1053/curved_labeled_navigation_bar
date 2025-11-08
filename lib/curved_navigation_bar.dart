@@ -1,10 +1,10 @@
-import 'package:universal_io/io.dart';
 import 'dart:math';
 
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
 import 'package:curved_labeled_navigation_bar/src/nav_bar_item_widget.dart';
 import 'package:curved_labeled_navigation_bar/src/nav_custom_clipper.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_io/io.dart';
 
 import 'src/nav_custom_painter.dart';
 
@@ -63,7 +63,7 @@ class CurvedNavigationBar extends StatefulWidget {
     this.onTap,
     _LetIndexPage? letIndexChange,
     this.animationCurve = Curves.easeOut,
-    this.animationDuration = const Duration(milliseconds: 600),
+    this.animationDuration = const Duration(milliseconds: 400),
     this.iconPadding = 12.0,
     this.maxWidth,
     double? height,
@@ -145,12 +145,13 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
         builder: (context, constraints) {
           final maxWidth = min(
               constraints.maxWidth, widget.maxWidth ?? constraints.maxWidth);
+          final padding = maxWidth * .15;
+          final newPaddedWidth = maxWidth - (padding * 2);
           return Align(
             alignment: textDirection == TextDirection.ltr
                 ? Alignment.bottomLeft
                 : Alignment.bottomRight,
             child: Container(
-              color: widget.backgroundColor,
               width: maxWidth,
               child: ClipRect(
                 clipper: NavCustomClipper(
@@ -159,28 +160,48 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
                 child: Stack(
                   clipBehavior: Clip.none,
                   alignment: Alignment.bottomCenter,
-                  children: <Widget>[
-                    Positioned(
-                      bottom: widget.height - 105.0,
-                      left: textDirection == TextDirection.rtl
-                          ? null
-                          : _pos * maxWidth,
-                      right: textDirection == TextDirection.rtl
-                          ? _pos * maxWidth
-                          : null,
-                      width: maxWidth / _length,
-                      child: Center(
-                        child: Transform.translate(
-                          offset: Offset(0, (_buttonHide - 1) * 80),
-                          child: Material(
-                            color: widget.buttonBackgroundColor ?? widget.color,
-                            type: MaterialType.circle,
-                            child: Padding(
-                              padding: EdgeInsets.all(widget.iconPadding),
-                              child: _icon,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: padding),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Positioned(
+                            bottom: widget.height - 105.0,
+                            left: textDirection == TextDirection.rtl
+                                ? null
+                                : _pos * newPaddedWidth,
+                            right: textDirection == TextDirection.rtl
+                                ? _pos * newPaddedWidth
+                                : null,
+                            width: newPaddedWidth / _length,
+                            child: Center(
+                              child: Transform.translate(
+                                offset: Offset(0, (_buttonHide - 1) * 80),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: widget.buttonBackgroundColor ??
+                                        widget.color,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        offset: Offset(0, 2),
+                                        color: Color(0xff76B729)
+                                            .withValues(alpha: 0.7),
+                                        blurRadius: 7,
+                                        spreadRadius: 0,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(widget.iconPadding),
+                                    child: _icon,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                     // Background
@@ -196,7 +217,7 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
                           textDirection: Directionality.of(context),
                           hasLabel: widget.hasLabel,
                         ),
-                        child: Container(height: widget.height),
+                        child: SizedBox(height: widget.height),
                       ),
                     ),
                     // Unselected buttons
@@ -206,18 +227,22 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
                       bottom: 0,
                       child: SizedBox(
                         height: widget.height,
-                        child: Row(
-                          children: widget.items.map((item) {
-                            return NavBarItemWidget(
-                              onTap: _buttonTap,
-                              position: _pos,
-                              length: _length,
-                              index: widget.items.indexOf(item),
-                              child: Center(child: item.child),
-                              label: item.label,
-                              labelStyle: item.labelStyle,
-                            );
-                          }).toList(),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: padding),
+                          child: Row(
+                            children: widget.items.map((item) {
+                              return NavBarItemWidget(
+                                onTap: _buttonTap,
+                                position: _pos,
+                                length: _length,
+                                index: widget.items.indexOf(item),
+                                child: Center(child: item.child),
+                                label: item.label,
+                                labelStyle: item.labelStyle,
+                                currentIndex: _endingIndex,
+                              );
+                            }).toList(),
+                          ),
                         ),
                       ),
                     ),
