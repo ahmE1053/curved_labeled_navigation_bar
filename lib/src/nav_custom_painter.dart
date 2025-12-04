@@ -19,7 +19,9 @@ class NavCustomPainter extends CustomPainter {
   }) {
     final span = 1.0 / itemsLength;
     final l = startingLoc + (span - s) / 2;
-    loc = textDirection == TextDirection.rtl ? 0.8 - l : l;
+
+    loc = textDirection == TextDirection.rtl ? 1.0 - (l + s) : l;
+
     bottom = hasLabel
         ? (Platform.isAndroid ? 0.55 : 0.45)
         : (Platform.isAndroid ? 0.6 : 0.5);
@@ -31,12 +33,13 @@ class NavCustomPainter extends CustomPainter {
       ..color = color
       ..style = PaintingStyle.fill;
 
-    final radius = Radius.circular(200); // <-- border radius you want
+    final radius = Radius.circular(200);
 
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     final rrect = RRect.fromRectAndRadius(rect, radius);
     final padding = size.width * .15;
     final width = size.width - (padding * 2);
+
     final path = Path()
       ..moveTo(0, 0)
       ..lineTo(width * (loc - 0.05) + padding, 0)
@@ -60,6 +63,7 @@ class NavCustomPainter extends CustomPainter {
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
       ..close();
+
     final finalPath = Path.combine(
       PathOperation.intersect,
       Path()..addRRect(rrect),
